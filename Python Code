@@ -1,0 +1,161 @@
+import math
+import random as rand
+from operator import truediv
+import matplotlib.pyplot as plt
+import numpy as np
+mu = 0.02/365 #mortality rate
+alpha = 0.83/14 #proportion which becomes immune
+beta = 10e-7 #Infection rate
+gamma = 2.457e-10 / beta #Virulence
+Lambda = 0.000062 #Birth rate
+epsilon = 1/14 - alpha # Proportion which becomes susceptible
+delta = 3.978e-4 / alpha # Rate at which immune becomes susceptible
+
+
+S = 900000
+I = 100000
+I1 = 0
+I2 = 0
+R = 0
+R1 = 0
+R2 = 0
+D = 0
+t = 0
+St = [990000]
+It = [10000]
+I1t = [0]
+I2t = [0]
+Rt = [0]
+Dt = [0]
+T = [1000000]
+counter = 0  
+
+class Pathogen:
+  def __init__(self, alpha, beta, gamma, delta, epsilon):
+      self.alpha = alpha
+      self.beta = beta
+      self.gamma = gamma
+      self.delta = delta
+      self.epsilon = epsilon
+       
+a = Pathogen(alpha, beta, gamma, delta, epsilon)
+b = Pathogen(0,0,0,0,0)
+c = Pathogen(0,0,0,0,0)
+
+Pathdict = [a,b,c]
+#Evo 1
+x = rand.randint(0, counter)
+alpha = Pathdict[x].alpha
+beta = Pathdict[x].beta
+y = rand.randint(0,1)
+z = rand.randint(0,1)
+if alpha < (0.95/14) and alpha > (0.05/14):
+    if y == 0:
+        alpha -= 0.05/14
+    else:
+        alpha += 0.05/14
+elif not alpha < 0.95/14:
+    alpha -= 0.05/14
+else:
+    alpha += 0.05/14
+if beta < 31e-7 and beta > 8e-7:
+    if z == 0:
+        beta -= 3e-7
+    else:
+        beta += 3e-7
+elif not beta < 31e-7:
+    beta -= 3e-7
+else:
+    beta += 3e-7
+gamma = 2.457e-10 / beta
+delta = 3.978e-4 / alpha
+epsilon = 1/14 - alpha
+b = Pathogen(alpha, beta, gamma, delta, epsilon)
+counter += 1    
+#Evo 2
+x = rand.randint(0, counter)
+alpha = Pathdict[x].alpha
+beta = Pathdict[x].beta
+y = rand.randint(0,1)
+z = rand.randint(0,1)
+if alpha < (0.95/14) and alpha > (0.05/14):
+    if y == 0:
+        alpha -= 0.05/14
+    else:
+        alpha += 0.05/14
+elif not alpha < 0.95/14:
+    alpha -= 0.05/14
+else:
+    alpha += 0.05/14
+if beta < 31e-7 and beta > 8e-7:
+    if z == 0:
+        beta -= 3e-7
+    else:
+        beta += 3e-7
+elif not beta < 31e-7:
+    beta -= 3e-7
+else:
+    beta += 3e-7
+gamma = 2.457e-10 / beta
+delta = 3.978e-4 / alpha
+epsilon = 1/14 - alpha
+c = Pathogen(alpha, beta, gamma, delta, epsilon)
+counter += 1
+
+while S > 0  and I > 100 and t < 365:
+    S = S + round(Lambda * (S + R)) + round(a.delta * R) + round(a.epsilon * I) - round(mu * S) - round(a.beta * S * I)
+    I += round(a.beta * S * I) - round(a.epsilon * I) - round(mu * I) - round(a.gamma * I) - round(a.alpha * I)
+    R += round(a.alpha * I) - round(a.delta * R) - round(mu * R)
+    D += round(mu * S) + round(mu * I) + round(a.gamma * I) + round(mu * R)
+    t += 1
+    St.append(S)
+    It.append(I)
+    I1t.append(0)
+    I2t.append(0)
+    Rt.append(R + R1 + R2)
+    Dt.append(D)
+    T.append((S + I + I1 + I2 + R + R1 + R2))
+
+I -= 1000
+I1 = 1000
+t=0
+while t < 365:
+    S += round(Lambda * (S + R + R1)) + round(a.delta * R) + round(a.epsilon * I) + round(b.epsilon * I1) + round(b.delta * R1) - round(mu * S) - round(a.beta * S * I) - round(b.beta * S * I1)
+    I += round(a.beta * S * I) - round(a.epsilon * I) - round(mu * I) - round(a.gamma * I) - round(a.alpha * I)
+    I1 += round(b.beta * S * I1) - round(b.epsilon * I1) - round(mu * I1) - round(b.gamma * I1) - round(b.alpha * I1)
+    R += round(a.alpha * I) - round(a.delta * R) - round(mu * R)
+    R1 += round(b.alpha * I1) - round(b.delta * R1) - round(mu * R1)
+    D += round(mu * S) + round(mu * I) + round(a.gamma * I) + round(mu * R) + round(mu * I1) + round(b.gamma * I1) + round(mu * R1)
+    t += 1
+    St.append(S)
+    It.append(I)
+    I1t.append(I1)
+    I2t.append(0)
+    Rt.append(R + R1 + R2)
+    Dt.append(D)
+    T.append((S + I + I1 + I2 + R + R1 + R2))
+print(I1)
+I1 -= 1000
+I2 += 1000
+t=0
+while t < 365:
+    S += round(Lambda * (S + R + R1)) + round(a.delta * R) + round(a.epsilon * I) + round(b.epsilon * I1) + round(b.delta * R1) + round(c.epsilon*I2) + round(c.delta * R2) - round(mu * S) - round(a.beta * S * I) - round(b.beta * S * I1) - round(c.beta*S*I2)
+    I += round(a.beta * S * I) - round(a.epsilon * I) - round(mu * I) - round(a.gamma * I) - round(a.alpha * I)
+    I1 += round(b.beta * S * I1) - round(b.epsilon * I1) - round(mu * I1) - round(b.gamma * I1) - round(b.alpha * I1)
+    I2 += round(c.beta * S * I2) - round(c.epsilon * I2) - round(mu * I2) - round(c.gamma * I2) - round(c.alpha * I2)
+    R += round(a.alpha * I) - round(a.delta * R) - round(mu * R)
+    R1 += round(b.alpha * I1) - round(b.delta * R1) - round(mu * R1)
+    R2 += round(c.alpha * I2) - round(c.delta * R2) - round(mu * R2)
+    D += round(mu * S) + round(mu * I) + round(a.gamma * I) + round(mu * R) + round(mu * I1) + round(b.gamma * I1) + round(mu * R1) + round(mu * I2) + round(c.gamma * I1) + round(mu * R2)
+    t += 1
+    St.append(S)
+    It.append(I)
+    I1t.append(I1)
+    I2t.append(I2)
+    Rt.append(R + R1 + R2)
+    Dt.append(D)
+    T.append((S + I + I1 + I2 + R + R1 + R2))
+print(I2)
+t = np.arange(0,3*t+1,1)
+plt.plot(t, list(map(truediv, St, T)), 'g', t, list(map(truediv, It, T)), 'r', t, list(map(truediv, Rt, T)), 'b', t, list(map(lambda x:x/1000000, T)), 'y', t, list(map(truediv, I1t, T)), 'c', t, list(map(truediv, I2t, T)), 'm')
+plt.show()
